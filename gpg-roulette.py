@@ -48,8 +48,6 @@ import_result = gpg.import_keys(get_gpg_key())
 savefile = "message.asc"
 
 afile = open("message.txt", "rb")
-
 encrypted_ascii_data = gpg.encrypt_file(afile, import_result.fingerprints, always_trust=True, output=savefile)
-
 afile.close()
 str(gpg.delete_keys(import_result.fingerprints[0]))
