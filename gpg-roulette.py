@@ -4,6 +4,7 @@ import json
 import urllib2
 import requests
 import operator
+import gnupg
 
 def get_three_rand_characters():
 	characters = ""
@@ -23,7 +24,7 @@ def get_json(url_param):
 	return values
 
 def get_random_login():
-	values = {"status":{"code":0,"name":"OK"},"completions":[]}
+	values = get_json("https://keybase.io/_/api/1.0/user/autocomplete.json?q="+get_three_rand_characters())
 	while len(values["completions"]) == 0 :
 		values = get_json("https://keybase.io/_/api/1.0/user/autocomplete.json?q="+get_three_rand_characters())
 	user = random.choice(values["completions"])
@@ -31,10 +32,24 @@ def get_random_login():
 
 def get_gpg_key():
 	key = requests.get("https://keybase.io/"+get_random_login()+"/pgp_keys.asc") 
-	key_file = open("pgp_keys.asc","w")
+	#key_file = open("pgp_keys.asc","w")
 	while key.status_code != 200:
 		key = requests.get("https://keybase.io/"+get_random_login()+"/pgp_keys.asc")
-	key_file.write(key.text)
-	key_file.close()
+	#key_file.write(key.text)
+	#key_file.close()
+	return key.text
 
-get_gpg_key()
+gpg_home = "~/.gnupg"
+
+gpg = gnupg.GPG(gnupghome=gpg_home)
+
+import_result = gpg.import_keys(get_gpg_key())
+
+savefile = "message.asc"
+
+afile = open("message.txt", "rb")
+
+encrypted_ascii_data = gpg.encrypt_file(afile, import_result.fingerprints, always_trust=True, output=savefile)
+
+afile.close()
+str(gpg.delete_keys(import_result.fingerprints[0]))
