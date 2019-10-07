@@ -31,12 +31,9 @@ def get_random_login():
     return user["components"]["username"]["val"]
 
 def get_gpg_key():
-    key = requests.get("https://keybase.io/"+get_random_login()+"/pgp_keys.asc") 
-    #key_file = open("pgp_keys.asc","w")
+    key = requests.get("https://keybase.io/"+get_random_login()+"/pgp_keys.asc")
     while key.status_code != 200:
-        key = requests.get("https://keybase.io/"+get_random_login()+"/pgp_keys.asc")
-    #key_file.write(key.text)
-    #key_file.close()
+            key = requests.get("https://keybase.io/"+get_random_login()+"/pgp_keys.asc")
     return key.text
 
 gpg_home = "~/.gnupg"
