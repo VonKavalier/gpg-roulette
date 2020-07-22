@@ -6,14 +6,15 @@ import requests
 import operator
 import gnupg
 
-def get_three_rand_characters():
+def get_rand_fingerprint():
     characters = ""
-    for i in range(3):
+    for i in range(16):
         choice = random.randrange(0,2)
         if choice == 0:
             characters = characters + random.choice(string.ascii_lowercase)
         else:
             characters = characters + str(random.randrange(1,10))
+    print characters
     return characters
 
 def get_json(url_param):
@@ -24,11 +25,11 @@ def get_json(url_param):
     return values
 
 def get_random_login():
-    values = get_json("https://keybase.io/_/api/1.0/user/autocomplete.json?q="+get_three_rand_characters())
-    while len(values["completions"]) == 0 :
-        values = get_json("https://keybase.io/_/api/1.0/user/autocomplete.json?q="+get_three_rand_characters())
-    user = random.choice(values["completions"])
-    return user["components"]["username"]["val"]
+    values = get_json("https://keybase.io/_/api/1.0/key/fetch.json?pgp_key_ids="+get_rand_fingerprint())
+    while values["status"]["code"] != 0 :
+        values = get_json("https://keybase.io/_/api/1.0/key/fetch.json?pgp_key_ids="+get_rand_fingerprint())
+    user = values["keys"][0]["username"]
+    return user
 
 def get_gpg_key():
     key = requests.get("https://keybase.io/"+get_random_login()+"/pgp_keys.asc")
